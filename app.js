@@ -1,20 +1,6 @@
 const http = require('http');
 const hostname = '127.0.0.1';
 const port = 3000;
-const server = http.createServer((req, res) => {
-    (async () => {
-        try {
-            const response = await getHackerRankNews();
-            const temp = JSON.stringify(response.descendants);
-            console.log('getHackerRankNews', temp);
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'text/plain');
-            res.end('Hacker Rank News Descendants = ' + temp);
-        } catch (error) {
-            console.log('catch.error', error);
-        }
-    })();
-});
 const getHackerRankNews = () => {
     const url = 'hacker-news.firebaseio.com';
     const path = '/v0/item/8863.json?print=pretty';
@@ -37,6 +23,7 @@ const getHackerRankNews = () => {
             };
             const handleEnd = () => {
                 const temp = JSON.parse(Buffer.concat(body).toString());
+                // console.log('end', temp);
                 resolve(temp);
             };
             res.on('data', listener)
@@ -48,6 +35,39 @@ const getHackerRankNews = () => {
     const promise = new Promise(executor);
     return promise;
 };
+const requestListener = (_req, res) => {
+    (async () => {
+        try {
+            const response = await getHackerRankNews();
+            const by = JSON.stringify(response.by);
+            const descendants = JSON.stringify(response.descendants);
+            const id = JSON.stringify(response.id);
+            const score = JSON.stringify(response.score);
+            const time = JSON.stringify(response.time);
+            const title = JSON.stringify(response.title);
+            const type = JSON.stringify(response.type);
+            const url = JSON.stringify(response.url);
+            const kids = JSON.stringify(response.kids);
+            console.log('now', Date.now());
+            console.log('getHackerRankNews.by', by);
+            console.log('getHackerRankNews.descendants', descendants);
+            console.log('getHackerRankNews.id', id);
+            console.log('getHackerRankNews.score', score);
+            console.log('getHackerRankNews.time', time);
+            console.log('getHackerRankNews.title', title);
+            console.log('getHackerRankNews.type', type);
+            console.log('getHackerRankNews.url', url);
+            console.log('getHackerRankNews.kids', kids);
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'text/plain');
+            // res.end(JSON.stringify(response));
+            res.end(kids);
+        } catch (error) {
+            console.log('catch.error', error);
+        }
+    })();
+};
+const server = http.createServer(requestListener);
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
 });
