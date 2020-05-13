@@ -2,9 +2,18 @@ const http = require('http');
 const hostname = '127.0.0.1';
 const port = 3000;
 const server = http.createServer((req, res) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('Hello World');
+    (async () => {
+        try {
+            const response = await getHackerRankNews();
+            const temp = JSON.stringify(response.descendants);
+            console.log('getHackerRankNews', temp);
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'text/plain');
+            res.end('Hacker Rank News Descendants = ' + temp);
+        } catch (error) {
+            console.log('catch.error', error);
+        }
+    })();
 });
 const getHackerRankNews = () => {
     const url = 'hacker-news.firebaseio.com';
@@ -39,15 +48,6 @@ const getHackerRankNews = () => {
     const promise = new Promise(executor);
     return promise;
 };
-(async () => {
-    try {
-        const response = await getHackerRankNews();
-        const temp = JSON.stringify(response.descendants);
-        console.log('getHackerRankNews', temp);
-    } catch (error) {
-        console.log('catch.error', error);
-    }
-})();
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
 });
